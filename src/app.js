@@ -15,10 +15,8 @@ app.use(
 );
 app.use(express.json());
 
+/*routes*/
 app.use('/api/v1', linkRoutes);
 console.log(getLink)
-
-
-/*routes*/
 
 export default app;
