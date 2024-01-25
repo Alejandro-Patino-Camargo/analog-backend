@@ -1,17 +1,24 @@
-import express from 'express';
-import { port } from './config/index.js';
-import loader from './loaders/index.js';
+import { config } from "dotenv";
+import express from "express";
+import cors from "cors";
+config({ path: "./env" });
+import linkRoutes from "./api/routes/linkRoutes.js";
+import getLink from "./api/controllers/Links.js";
 
+/*middleware*/
 const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
+app.use(express.json());
 
-loader(app);
+app.use('/api/v1', linkRoutes);
+console.log(getLink)
 
-app.listen(port, err => {
-  if (err) {
-    console.log(err);
-    return process.exit(1);
-  }
-  console.log(`Server is running on ${port}`);
-});
 
-export default app
+/*routes*/
+
+export default app;
