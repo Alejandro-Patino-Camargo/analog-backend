@@ -4,7 +4,11 @@ const linkSchema = new mongoose.Schema(
   {
     url: {
       type: String,
-      required: [true, "link cannot be blank"],
+      required: [false, "link cannot be blank"],
+    },
+    counter: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true },
