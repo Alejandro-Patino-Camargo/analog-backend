@@ -10,7 +10,7 @@ const app = express();
 if (process.env.NODE_ENV === "production") {
   app.use(
     cors({
-      origin: process.env.MP3_API_BASE_URL,
+      origin: "https://analog-front.vercel.app/",
       credentials: true,
     }),
   );
