@@ -6,11 +6,12 @@ import process from "process";
 config({ path: "./env" });
 
 const app = express();
+console.log(process.env.MP3_API_BASE_URL);
 
 if (process.env.NODE_ENV === "production") {
   app.use(
     cors({
-      origin: "https://analog-front.vercel.app/",
+      origin: process.env.MP3_API_BASE_URL,
       credentials: true,
     }),
   );
