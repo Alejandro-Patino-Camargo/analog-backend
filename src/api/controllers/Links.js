@@ -1,5 +1,6 @@
 import ytdl from "ytdl-core";
 import { Link } from "../../models/index.js";
+import { Buffer } from "buffer";
 
 async function fetchVideoInfo(videoUrl) {
   try {
@@ -61,23 +62,35 @@ async function fetchMP3(req, res) {
     const videoInfo = await fetchVideoInfo(videoUrl);
     console.log("Video info fetched:", videoInfo);
 
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${videoInfo.filename}"`,
-    );
-    res.setHeader("Content-Type", "audio/mpeg");
-
-    ytdl(videoUrl, {
+    const audioReadableStream = ytdl(videoUrl, {
       format: "mp3",
       filter: "audioonly",
-    }).pipe(res);
+    });
 
-    const updatedLink = await updateLinkCounter(videoUrl);
-    console.log("MP3 download completed. Updated link:", updatedLink);
+    const chunks = [];
+    audioReadableStream.on("data", (chunk) => {
+      chunks.push(chunk);
+    });
 
-    res.json({ filename: videoInfo.filename });
+    audioReadableStream.on("end", async () => {
+      const audioBuffer = Buffer.from(
+        chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []),
+      );
+
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${videoInfo.filename}"`,
+      );
+      res.setHeader("Content-Type", "audio/mpeg");
+      res.setHeader("Content-Length", audioBuffer.length);
+
+      res.end(audioBuffer);
+
+      const updatedLink = await updateLinkCounter(videoUrl);
+      console.log("MP3 download completed. Updated link:", updatedLink);
+    });
   } catch (error) {
-    console.error(error);
+    console.error("Error during MP3 download:", error);
     res.status(500).json({ message: error.message });
   }
 }
