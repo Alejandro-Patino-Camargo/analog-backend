@@ -57,11 +57,17 @@ async function fetchMP3(req, res) {
   }
 
   try {
-    console.log("Starting MP3 download for:", videoUrl);
+    fetchVideoInfo(videoUrl)
+      .then((data) => {
+        data.title =
+          data.title.replace(/[^a-zA-Z0-9 ]/g, "").replace(/ /g, "_") + ".mp3";
+        console.log("Video info fetched:", data);
+      })
+      .catch((error) => {
+        console.log("Error fetching video info:", error);
+      });
 
     const videoInfo = await fetchVideoInfo(videoUrl);
-    console.log("Video info fetched:", videoInfo);
-
     const audioReadableStream = ytdl(videoUrl, {
       format: "mp3",
       filter: "audioonly",
